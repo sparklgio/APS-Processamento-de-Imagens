@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Autorização Administrativa | NEXUS</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    {% include "cabecalho.html" %}
+
+    <main>
+        <section class="card">
+
+            {% with mensagens = get_flashed_messages() %}
+                {% for mensagem in mensagens %}
+                    <p role="status">{{ mensagem }}</p>
+                {% endfor %}
+            {% endwith %}
+
+            <h2>Identificação do administrador</h2>
+
+            <p>
+                Esta área é restrita. Para acessar,
+                é necessário possuir autorização de Nível 3.
+            </p>
+
+            <form method="POST" action="{{ url_for('autorizar_gerenciamento') }}" id="formReconhecimento" class="form-login" data-etapa="1" data-texto-enviando="Reconhecendo...">
+
+                {% with rotulo_final="Autorizar" %}{% include "camera.html" %}{% endwith %}
+
+                <button type="submit" id="btnReconhecer" disabled>
+                    Verificar autorização
+                </button>
+            </form>
+
+            <div class="nav-botoes">
+                <a href="{{ url_for('index') }}" class="btn-voltar">← Voltar ao início</a>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconhecimento Facial | NEXUStle>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    {% include "cabecalho.html" %}
+
+    <main>
+        <section class="card">
+            {% with mensagens = get_flashed_messages() %}
+                   {% for mensagem in mensagens %}
+                        <p role="status">{{ mensagem }}</p>
+                   {% endfor %}
+            {% endwith %}
+
+           <form method="POST" action="{{ url_for('reconhecimento') }}" id="formReconhecimento" class="form-login" data-etapa="1" data-texto-enviando="Reconhecendo...">"
+                id="formReconhecimento" class="form-login" data-etapa="1">
+
+                <h2>Identificação</h2>
+                <p>Posicione apenas um rosto diante da câmera, em local bem iluminado.</p>
+
+                {% with rotulo_final="Verificar" %}{% include "camera.html" %}{% endwith %}
+
+                <button type="submit" id="btnReconhecer" disabled>
+                    Reconhecer servidor
+                </button>
+            </form>
+
+            <div class="nav-botoes">
+                <a href="{{ url_for('index') }}" class="btn-voltar">← Voltar ao início</a>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+</body>
+</html>

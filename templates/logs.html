@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Auditoria de Acessos | NEXUS</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    {% with =trunexuse %}{% include "cabecalho.html" %}{% endwith %}
+
+    <main class="main-largo">
+        <section class="card">
+            <h2>Auditoria de Acessos</h2>
+
+            <p>
+                Histórico de tentativas de autenticação e acesso ao sistema.
+            </p>
+
+            <p>
+                Total de registros:
+                <strong>{{ registros|length }}</strong>
+            </p>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data e hora</th>
+                            <th>Servidor</th>
+                            <th>Cargo</th>
+                            <th>Nível</th>
+                            <th>Resultado</th>
+                            <th>Motivo</th>
+                            <th>Similaridade</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for registro in registros %}
+                        <tr>
+                            <td>{{ registro["data_hora"] }}</td>
+
+                            <td>{{ registro["nome_servidor"] }}</td>
+
+                            <td>{{ registro["cargo"] or "—" }}</td>
+
+                            <td>
+                                {% if registro["nivel_permissao"] %}
+                                    {{ registro["nivel_permissao"] }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if registro["status"] == "LIBERADO" %}
+                                    <span class="audit-liberado">
+                                        LIBERADO
+                                    </span>
+                                {% else %}
+                                    <span class="audit-negado">
+                                        NEGADO
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>{{ registro["motivo"] }}</td>
+
+                            <td>
+                                {% if registro["score_similaridade"] is not none %}
+                                    {{ "%.3f"|format(registro["score_similaridade"]) }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7">
+                                Nenhuma tentativa de acesso registrada.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="nav-botoes">
+                <a href="{{ url_for('index') }}" class="btn-voltar">← Voltar ao início</a>
+                <a href="{{ url_for('sair_gerenciamento') }}" class="btn-sair">Encerrar sessão administrativa</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gerenciamento de Servidores | NEXUS</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    {% with nexus=true %}{% include "cabecalho.html" %}{% endwith %}
+
+    <main class="main-largo">
+        <section class="card">
+
+            {% with mensagens = get_flashed_messages() %}
+                {% for mensagem in mensagens %}
+                    <p role="status">{{ mensagem }}</p>
+                {% endfor %}
+            {% endwith %}
+
+            <h2>Servidores cadastrados</h2>
+
+            <p>
+                Consulte os servidores registrados no sistema e seus respectivos
+                níveis de permissão.
+            </p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Cargo</th>
+                            <th>Departamento</th>
+                            <th>Nível</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for servidor in servidores %}
+                            <tr>
+                                <td>{{ servidor["nome"] }}</td>
+                                <td>{{ servidor["cargo"] }}</td>
+                                <td>{{ servidor["departamento"] }}</td>
+                                <td>Nível {{ servidor["nivel_permissao"] }}</td>
+                                <td>
+                                    {% if servidor["ativo"] == 1 %}
+                                        Ativo
+                                    {% else %}
+                                        Inativo
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="acoes">
+                                        <a href="{{ url_for('editar_servidor', servidor_id=servidor['id']) }}" class="btn-editar">Editar</a>
+
+                                        {% if servidor["id"] != session.get("servidor_admin_id") %}
+                                            {% if servidor["ativo"] == 1 %}
+                                                <form method="POST" action="{{ url_for('rota_desativar_servidor', servidor_id=servidor['id']) }}">
+                                                    <button type="submit">Desativar</button>
+                                                </form>
+                                            {% else %}
+                                                <form method="POST" action="{{ url_for('rota_reativar_servidor', servidor_id=servidor['id']) }}">
+                                                    <button type="submit">Reativar</button>
+                                                </form>
+                                            {% endif %}
+
+                                            <form
+                                                method="POST"
+                                                action="{{ url_for('rota_excluir_servidor', servidor_id=servidor['id']) }}"
+                                                onsubmit="return confirm('Tem certeza de que deseja excluir definitivamente este servidor? Esta ação não poderá ser desfeita.');"
+                                            >
+                                                <button type="submit" class="btn-excluir">Excluir</button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>        
+                               {% else %}
+                                 <tr>
+                                     <td colspan="6">
+                                        Nenhum servidor cadastrado.
+                                    </td>
+                                 </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="nav-botoes">
+                <a href="{{ url_for('index') }}" class="btn-voltar">← Voltar ao início</a>
+                <a href="{{ url_for('sair_gerenciamento') }}" class="btn-sair">Encerrar sessão administrativa</a>
+            </div>
+
+        </section>
+    </main>
+
+</body>
+</html>

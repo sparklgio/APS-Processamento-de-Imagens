@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS | Cofre MMA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+   {% with nexus=true %}{% include "cabecalho.html" %}{% endwith %}
+
+    <main>
+    <section class="card">
+        <div class="login-icone" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="none"
+                 stroke="currentColor" stroke-width="1.6"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 8V6a2 2 0 0 1 2-2h2"/>
+                <path d="M16 4h2a2 2 0 0 1 2 2v2"/>
+                <path d="M20 16v2a2 2 0 0 1-2 2h-2"/>
+                <path d="M8 20H6a2 2 0 0 1-2-2v-2"/>
+                <path d="M9 10v1"/>
+                <path d="M15 10v1"/>
+                <path d="M12 10v3h-1"/>
+                <path d="M9 16c1.7 1.3 4.3 1.3 6 0"/>
+            </svg>
+        </div>
+
+        <h2>Acesso ao Sistema</h2>
+        <p>Identifique-se por reconhecimento facial para continuar.</p>
+
+        {% with mensagens = get_flashed_messages() %}
+            {% for mensagem in mensagens %}
+                <p class="status" role="status">{{ mensagem }}</p>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('reconhecimento') }}" id="formReconhecimento" class="form-login" data-etapa="1" data-texto-enviando="Reconhecendo...">
+            <input type="hidden" name="origem" value="inicio">
+
+            {% with rotulo_final="Verificar" %}{% include "camera.html" %}{% endwith %}
+
+            <button type="submit" id="btnReconhecer" disabled>
+                Verificar identidade
+            </button>
+        </form>
+    </section>
+</main>
+
+    <footer>
+        Projeto acadêmico de Processamento de Imagens e Visão Computacional
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS - Catálogo de Substâncias</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    {% with nexus=true %}{% include "cabecalho.html" %}{% endwith %}
+
+    {% set imagens = {
+        'TOX-001': 'botulinica.jpg',
+        'TOX-002': 'ricina.jpg',
+        'TOX-003': 'saxitoxina.jpg',
+        'TOX-004': 'tetrodotoxina.jpg',
+        'TOX-005': 'xenon-delta.jpg',
+        'TOX-006': 'omega-9.jpg',
+        'TOX-007': 'microcistina.jpg',
+        'TOX-008': 'aflatoxina.jpg',
+        'TOX-009': 'acido-domoico.jpg',
+        'TOX-010': 'brevetoxina.jpg',
+        'TOX-011': 'palitoxina.jpg',
+        'TOX-012': 'batracotoxina.jpg'
+    } %}
+    {% set nivel = servidor["nivel_permissao"] %}
+    {# até 4 substâncias: 2 colunas (2x2); acima disso: 4 colunas #}
+    {% set colunas = 2 if toxinas|length <= 4 else 4 %}
+
+    <main class="main-largo">
+
+        <section class="card">
+
+            <div class="toxinas-cabecalho">
+                <div>
+                    <h2>Catálogo de Substâncias</h2>
+                    <p>Substâncias autorizadas para o seu nível de acesso</p>
+                </div>
+
+                <span class="status-autenticado">Acesso autenticado</span>
+            </div>
+
+            <div class="painel-topo">
+                <div class="servidor-info">
+                    <div class="avatar" aria-hidden="true">
+                        {{ servidor["nome"][0]|upper }}
+                    </div>
+
+                    <div>
+                        <p class="servidor-nome">{{ servidor["nome"] }}</p>
+                        <p class="servidor-detalhe">
+                            {{ servidor["cargo"] }} · {{ servidor["departamento"] }}
+                        </p>
+                    </div>
+
+                    <span class="nivel-badge nivel-{{ nivel }}">
+                        Nível {{ nivel }}
+                    </span>
+                </div>
+
+                {% if toxinas %}
+                <div class="busca">
+                    <label for="buscaToxina" class="sr-only">
+                        Pesquisar substância
+                    </label>
+                    <input type="search"
+                           id="buscaToxina"
+                           placeholder="Pesquisar por nome ou código..."
+                           autocomplete="off">
+                </div>
+                {% endif %}
+            </div>
+
+            {% if toxinas %}
+
+                <p class="contador" id="contadorToxinas" aria-live="polite">
+                    Exibindo {{ toxinas|length }} de {{ toxinas|length }} substâncias
+                </p>
+
+                <div class="toxinas-grade" style="--colunas: {{ colunas }}">
+                    {% for toxina in toxinas %}
+                    {% set arquivo = imagens.get(toxina['codigo']) %}
+
+                    <article class="toxina-card"
+                             data-busca="{{ toxina['codigo'] }} {{ toxina['nome'] }} {{ toxina['descricao'] }}">
+
+                        <div class="toxina-imagem-container">
+                            {% if arquivo %}
+                                <img src="{{ url_for('static', filename='img/' ~ arquivo) }}"
+                                     alt="Imagem ilustrativa de {{ toxina['nome'] }}"
+                                     class="toxina-imagem">
+                            {% else %}
+                                <div class="toxina-sem-imagem" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" width="44" height="44" fill="none"
+                                         stroke="currentColor" stroke-width="1.5"
+                                         stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 3h6"/>
+                                        <path d="M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/>
+                                        <path d="M7.5 14h9"/>
+                                    </svg>
+                                </div>
+                            {% endif %}
+
+                            <span class="toxina-codigo">{{ toxina['codigo'] }}</span>
+                        </div>
+
+                        <div class="toxina-conteudo">
+                            <div class="toxina-cabecalho">
+                                <h3>{{ toxina['nome'] }}</h3>
+                                <span class="toxina-status">ATIVA</span>
+                            </div>
+
+                            <p class="toxina-descricao">{{ toxina['descricao'] }}</p>
+
+                            <div class="toxina-rodape">
+                                <span class="toxina-acesso nivel-{{ toxina['categoria_acesso'] }}">
+                                    {% if toxina['categoria_acesso'] == 1 %}
+                                        Acesso geral
+                                    {% elif toxina['categoria_acesso'] == 2 %}
+                                        Diretores autorizados
+                                    {% else %}
+                                        Acesso restrito
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                    </article>
+                    {% endfor %}
+                </div>
+
+                <p class="sem-toxinas" id="semResultado" hidden>
+                    Nenhuma substância encontrada para esta pesquisa.
+                </p>
+
+            {% else %}
+
+                <p class="sem-toxinas">
+                    Nenhuma substância disponível para este nível de permissão.
+                </p>
+
+            {% endif %}
+
+            {% if nivel == 3 %}
+                <section class="painel-admin" aria-label="Administração">
+                    <div>
+                        <h3>Administração</h3>
+                        <p>Cada acesso administrativo exige nova confirmação facial.</p>
+                    </div>
+
+                    <div class="admin-botoes">
+                        <a href="{{ url_for('cadastro') }}" class="btn-gerenciar">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+                                stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="10" cy="8" r="4"/>
+                                <path d="M3 21v-1a6 6 0 0 1 6-6h2"/>
+                                <path d="M18 14v6M15 17h6"/>
+                            </svg>
+                            Cadastrar servidor
+                        </a>
+
+                        <a href="{{ url_for('logs') }}" class="btn-gerenciar">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+                                stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="5" y="4" width="14" height="17" rx="2"/>
+                                <path d="M9 4V3h6v1M9 11h6M9 15h6"/>
+                            </svg>
+                            Auditoria de acessos
+                        </a>
+
+                        <a href="{{ url_for('gerenciamento_servidores') }}" class="btn-gerenciar">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+                                stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/>
+                                <path d="M13.5 6.5l4 4"/>
+                            </svg>
+                            Editar servidores
+                        </a>
+                    </div>
+                </section>
+                {% endif %}
+
+                <div class="toxinas-acoes">
+                    <a href="{{ url_for('index') }}" class="btn-voltar">← Voltar ao início</a>
+                </div>
+        </section>
+    </main>
+
+    {% if toxinas %}
+    <script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+    {% endif %}
+
+</body>
+</html>
